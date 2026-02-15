@@ -196,6 +196,11 @@ swag init
 5. Open a Pull Request.
 
 
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
 ## 📧 Contact
 
 Emirhan Gözükucuk - [@EmirhanG7](https://github.com/EmirhanG7)
