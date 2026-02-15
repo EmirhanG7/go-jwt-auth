@@ -1,0 +1,206 @@
+basePath: /api/auth
+definitions:
+  controllers.LoginInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  controllers.RegisterInput:
+    properties:
+      email:
+        type: string
+      name:
+        minLength: 2
+        type: string
+      password:
+        maxLength: 32
+        minLength: 6
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  utils.ErrorResponse:
+    properties:
+      field:
+        type: string
+      tag:
+        type: string
+      value:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact:
+    email: support@swagger.io
+    name: API Destek
+  description: Go Fiber, GORM ve JWT ile hazırlanmış iskelet proje.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: JWT Auth API
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Email ve şifre ile giriş yapar, Access ve Refresh token döner.
+      parameters:
+      - description: Login Bilgileri
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.LoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Kullanıcı Girişi
+      tags:
+      - Auth
+  /logout:
+    post:
+      description: Geçerli oturumu kapatır. Veritabanından mevcut refresh token'ı
+        siler ve tarayıcıdaki cookie'leri temizler.
+      responses:
+        "200":
+          description: Başarıyla çıkış yapıldı
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - Bearer: []
+      summary: Çıkış Yap (Logout)
+      tags:
+      - Auth
+  /logout-all:
+    post:
+      description: Kullanıcının veritabanındaki TÜM refresh tokenlarını siler (Mobil,
+        Web, Tablet hepsi düşer).
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - Bearer: []
+      summary: Tüm Cihazlardan Çıkış Yap
+      tags:
+      - Auth
+  /profile:
+    get:
+      consumes:
+      - application/json
+      description: Giriş yapmış kullanıcının bilgilerini döner.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      security:
+      - Bearer: []
+      summary: Kullanıcı Profili
+      tags:
+      - User
+  /refresh:
+    post:
+      consumes:
+      - application/json
+      description: HttpOnly Cookie içindeki Refresh Token'ı kullanarak yeni bir Access
+        Token alır. Aynı zamanda Refresh Token'ı da yeniler (Rotation).
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Yeni Access Token döner
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Token bulunamadı veya süresi dolmuş
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: 'Güvenlik İhlali: Token Reuse Detected!'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Token Yenileme (Refresh Token Rotation)
+      tags:
+      - Auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Kullanıcıyı sisteme kaydeder.
+      parameters:
+      - description: Kayıt Bilgileri
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.RegisterInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Yeni Kullanıcı Kaydı
+      tags:
+      - Auth
+schemes:
+- http
+securityDefinitions:
+  Bearer:
+    description: '"Bearer " boşluk ve sonra token şeklinde giriniz. Örn: Bearer eyJhb...'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -17,6 +17,14 @@ type User struct {
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
+type RefreshToken struct {
+	ID        uint      `gorm:"primaryKey" json:"-"`
+	UserID    uint      `gorm:"index;not null" json:"-"`
+	Token     string    `gorm:"unique;not null" json:"token"`
+	ExpiresAt time.Time `json:"expires_at"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 func (u *User) HashPassword(password string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {

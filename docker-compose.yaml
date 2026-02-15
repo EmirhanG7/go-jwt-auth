@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: jwt_auth_api_dev
+    build:
+      context: .
+      dockerfile: Dockerfile.dev # Development dosyasını kullan
+    ports:
+      - "3000:3000"
+    restart: always
+    depends_on:
+      - db
+    # --- KRİTİK KISIM: VOLUME ---
+    volumes:
+      - .:/app # Bilgisayarımdaki klasörü -> Docker içine bağla
+    # ----------------------------
+    environment:
+      - PORT=3000
+      - ENV=development # Development modunda olduğumuzu belirtelim
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+
+  db:
+    image: postgres:15-alpine
+    container_name: jwt_auth_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

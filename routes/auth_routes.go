@@ -2,20 +2,21 @@ package routes
 
 import (
 	"jwt-auth/controllers"
-	"jwt-auth/middleware"
+	"jwt-auth/middleware" // Limiter burada
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func SetupAuthRoutes(app *fiber.App) {
-	auth := app.Group("/api/auth")
+	api := app.Group("/api/auth")
 
-	auth.Post("/register", controllers.Register)
-	auth.Post("/login", controllers.Login)
+	// public routes
+	api.Post("/register", middleware.AuthLimiter(), controllers.Register)
+	api.Post("/login", middleware.AuthLimiter(), controllers.Login)
+	api.Post("/refresh", middleware.AuthLimiter(), controllers.Refresh)
 
-	auth.Get("/profile", middleware.RequireAuth, controllers.GetProfile)
-	auth.Post("/logout", middleware.RequireAuth, controllers.Logout)
-
-	auth.Get("/test-concurrent", controllers.SlowEndpoint)
-
+	// private routes
+	api.Get("/profile", middleware.RequireAuth, middleware.ApiLimiter(), controllers.GetProfile)
+	api.Post("/logout", middleware.RequireAuth, controllers.Logout)
+	api.Post("/logout-all", middleware.RequireAuth, controllers.LogoutAll)
 }
