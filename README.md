@@ -64,6 +64,7 @@ DB_NAME=jwt_auth
 
 JWT_SECRET=your-super-secret-key-change-this-in-production
 JWT_REFRESH_SECRET=your-refresh-secret-key-change-this-in-production
+ALLOWED_ORIGINS=http://localhost:3000
 ```
 
 

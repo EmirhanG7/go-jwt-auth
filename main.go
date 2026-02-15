@@ -64,15 +64,23 @@ func main() {
 
 	app.Use(logger.New())
 	app.Use(helmet.New())
+
+	allowedOrigins := os.Getenv("ALLOWED_ORIGINS")
+	if allowedOrigins == "" {
+		log.Println("ALLOWED_ORIGINS env var not set")
+	} else {
+		log.Println("ALLOWED_ORIGINS:", allowedOrigins)
+	}
+
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3000,http://localhost:5173",
+		AllowOrigins:     allowedOrigins,
 		AllowHeaders:     "Origin, Content-Type, Accept",
 		AllowMethods:     "GET, POST, PUT, DELETE, OPTIONS",
 		AllowCredentials: true,
 	}))
 
 	routes.SetupAuthRoutes(app)
-	
+
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
 	app.Use(func(c *fiber.Ctx) error {
